@@ -1,0 +1,203 @@
+/*
+|--------------------------------------------------------------------------
+| Custom Styles — Jurusan Rekayasa Komputer
+|--------------------------------------------------------------------------
+| Override CSS untuk menyesuaikan tampilan Eterna template
+| dengan branding Jurusan RK (navbar putih, topbar biru, dll).
+|--------------------------------------------------------------------------
+*/
+
+/* ==================== TOPBAR BIRU ==================== */
+.header .topbar.dark-background {
+    --background-color: #1b2e4b !important;
+    background-color: #1b2e4b !important;
+}
+
+/* ==================== NAVBAR PUTIH ==================== */
+.header .branding {
+    background-color: #ffffff !important;
+    min-height: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header .branding .sitename {
+    color: #1b2e4b !important;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Logo border accent biru */
+.header .logo h1 {
+    border-left-color: #1b6cb0 !important;
+}
+
+/* Nav links gelap di navbar putih */
+.header .branding .navmenu a,
+.header .navmenu a,
+.navmenu a {
+    color: #444444 !important;
+}
+
+.header .branding .navmenu a:hover,
+.header .branding .navmenu a.active,
+.header .navmenu a:hover,
+.header .navmenu a.active,
+.navmenu a:hover,
+.navmenu a.active {
+    color: #1b6cb0 !important;
+}
+
+/* Dropdown putih */
+.header .navmenu .dropdown ul {
+    background-color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header .navmenu .dropdown ul a {
+    color: #444444 !important;
+}
+
+.header .navmenu .dropdown ul a:hover {
+    color: #1b6cb0 !important;
+    background-color: rgba(27, 108, 176, 0.06) !important;
+}
+
+/* Toggle dropdown icon gelap */
+.header .navmenu .toggle-dropdown {
+    color: #555555;
+}
+
+/* Mobile nav toggle gelap */
+.header .mobile-nav-toggle {
+    color: #333333;
+}
+
+/* ==================== PROGRAM STUDI SECTION ==================== */
+.prodi-card-link {
+    text-decoration: none !important;
+    display: block;
+}
+
+.prodi-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    cursor: pointer;
+}
+
+.prodi-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.prodi-card-img {
+    height: 420px;
+    overflow: hidden;
+}
+
+.prodi-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.prodi-card:hover .prodi-card-img img {
+    transform: scale(1.08);
+}
+
+.prodi-card-body {
+    background-color: #1b2e4b;
+    padding: 18px 16px;
+    text-align: center;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prodi-card-body h5 {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ==================== BERITA SECTION ==================== */
+.berita-section .card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.berita-section .card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.berita-section .card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.berita-section .card .tanggal {
+    color: #1b2e4b;
+    font-size: 0.85rem;
+}
+
+.berita-section .card .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1b2e4b;
+}
+
+.berita-section .card .card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* ==================== CTA POLITANI SECTION ==================== */
+.cta-politani {
+    background: linear-gradient(135deg, #1b2e4b 0%, #3a6db5 50%, #6b8ec9 100%);
+    padding: 80px 0;
+}
+
+.cta-politani .logo-politani {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.cta-politani h2 {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 2rem;
+}
+
+.cta-politani .emoji-trophy {
+    font-size: 2rem;
+}
+
+.cta-politani p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.cta-politani .btn-cta {
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    padding: 10px 40px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cta-politani .btn-cta:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #ffffff;
+}
