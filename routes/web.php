@@ -12,6 +12,13 @@
 
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\BeritaController;
+use App\Http\Controllers\Admin\KategoriController;
+use App\Http\Controllers\Admin\DosenController;
+use App\Http\Controllers\Admin\ProgramStudiController;
+use App\Http\Controllers\Admin\GaleriController;
+use App\Http\Controllers\Admin\FasilitasController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,34 +79,32 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Placeholder routes untuk CRUD admin (controller dibuat nanti)
+    // === CRUD Resources ===
+    Route::get('/slider/datatable', [SliderController::class, 'datatable'])->name('slider.datatable');
+    Route::resource('slider', SliderController::class)->except(['show']);
+
+    // Placeholder routes (akan diganti resource saat controller dibuat)
     Route::get('/profil-jurusan', function () {
         return view('admin.dashboard');
     })->name('profil.edit');
 
-    Route::get('/slider', function () {
-        return view('admin.dashboard');
-    })->name('slider.index');
+    Route::get('/berita/datatable', [BeritaController::class, 'datatable'])->name('berita.datatable');
+    Route::resource('berita', BeritaController::class)->except(['show']);
 
-    Route::get('/berita', function () {
-        return view('admin.dashboard');
-    })->name('berita.index');
+    Route::get('/kategori/datatable', [KategoriController::class, 'datatable'])->name('kategori.datatable');
+    Route::resource('kategori', KategoriController::class)->except(['show']);
 
-    Route::get('/dosen', function () {
-        return view('admin.dashboard');
-    })->name('dosen.index');
+    Route::get('/dosen/datatable', [DosenController::class, 'datatable'])->name('dosen.datatable');
+    Route::resource('dosen', DosenController::class)->except(['show']);
 
-    Route::get('/program-studi', function () {
-        return view('admin.dashboard');
-    })->name('program-studi.index');
+    Route::get('/program-studi/datatable', [ProgramStudiController::class, 'datatable'])->name('program-studi.datatable');
+    Route::resource('program-studi', ProgramStudiController::class)->except(['show']);
 
-    Route::get('/galeri', function () {
-        return view('admin.dashboard');
-    })->name('galeri.index');
+    Route::get('/galeri/datatable', [GaleriController::class, 'datatable'])->name('galeri.datatable');
+    Route::resource('galeri', GaleriController::class)->except(['show']);
 
-    Route::get('/fasilitas', function () {
-        return view('admin.dashboard');
-    })->name('fasilitas.index');
+    Route::get('/fasilitas/datatable', [FasilitasController::class, 'datatable'])->name('fasilitas.datatable');
+    Route::resource('fasilitas', FasilitasController::class)->except(['show']);
 
     Route::get('/kontak', function () {
         return view('admin.dashboard');

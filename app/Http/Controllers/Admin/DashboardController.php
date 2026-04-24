@@ -3,6 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Berita;
+use App\Models\Dosen;
+use App\Models\Galeri;
+use App\Models\KontakPesan;
+use App\Models\Slider;
+use App\Models\ProgramStudi;
 
 /**
  * Controller untuk halaman dashboard admin.
@@ -19,6 +25,15 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('admin.dashboard');
+        $stats = [
+            'berita'  => Berita::count(),
+            'dosen'   => Dosen::count(),
+            'galeri'  => Galeri::count(),
+            'pesan'   => KontakPesan::count(),
+            'slider'  => Slider::count(),
+            'prodi'   => ProgramStudi::count(),
+        ];
+
+        return view('admin.dashboard', compact('stats'));
     }
 }

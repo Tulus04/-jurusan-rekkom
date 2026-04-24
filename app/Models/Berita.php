@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -95,5 +96,13 @@ class Berita extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * Relasi many-to-many ke Kategori.
+     */
+    public function kategoris(): BelongsToMany
+    {
+        return $this->belongsToMany(Kategori::class, 'berita_kategori');
     }
 }

@@ -25,8 +25,8 @@ class DatabaseSeeder extends Seeder
         // ===== Akun Admin =====
         User::create([
             'name' => 'Admin Jurusan RK',
-            'email' => 'admin@jurusanrk.ac.id',
-            'password' => Hash::make('password123'),
+            'email' => 'admin@rekkom.ac.id',
+            'password' => Hash::make('password'),
         ]);
 
         // ===== Profil Jurusan =====

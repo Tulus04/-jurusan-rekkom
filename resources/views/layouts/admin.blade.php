@@ -34,6 +34,7 @@
     <script src="{{ asset('admin/js/config.js') }}"></script>
     <script src="{{ asset('admin/js/color-modes.js') }}"></script>
 
+    @stack('styles')
     @yield('styles')
 </head>
 
@@ -96,6 +97,20 @@
         });
     </script>
 
+    {{-- jQuery (dependency DataTables.js) --}}
+    <script src="{{ asset('admin/vendor/jquery/jquery-3.7.1.min.js') }}"></script>
+
+    {{-- SweetAlert2 (jQuery-free) --}}
+    <script src="{{ asset('admin/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+
+    {{-- CSRF Token untuk AJAX --}}
+    <script>
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+        });
+    </script>
+
+    @stack('scripts')
     @yield('scripts')
 
 </body>
