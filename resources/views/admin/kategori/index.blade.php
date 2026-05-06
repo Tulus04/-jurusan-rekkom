@@ -54,11 +54,17 @@
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'nama', name: 'nama' },
                     { data: 'slug', name: 'slug' },
+                    { data: 'tipe_badge', name: 'tipe', orderable: true, searchable: false },
                     { data: 'beritas_count', name: 'beritas_count' },
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
                 ],
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/id.json'
+                    url: '{{ asset("admin/vendor/datatables/id.json") }}',
+                    emptyTable: '<div class="py-4 text-center text-body-secondary">' +
+                        '<svg class="icon icon-3xl mb-2"><use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-tags') }}"></use></svg>' +
+                        '<div class="fw-semibold mb-1">Belum ada kategori berita</div>' +
+                        '<a href="{{ route('admin.kategori.create') }}" class="btn btn-sm btn-primary mt-2">Tambah Kategori Pertama</a>' +
+                        '</div>'
                 }
             });
 

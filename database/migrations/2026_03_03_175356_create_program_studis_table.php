@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Schema;
  *
  * Menyimpan data program studi yang ada di jurusan.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Buat tabel program_studis.
      */

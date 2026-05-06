@@ -38,23 +38,27 @@
 
         {{-- Email (input-group dengan SVG icon seperti template) --}}
         <div class="input-group mb-3">
-            <span class="input-group-text">
+            <label for="email" class="visually-hidden">Email</label>
+            <span class="input-group-text" aria-hidden="true">
                 <svg class="icon">
                     <use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-user') }}"></use>
                 </svg>
             </span>
-            <input class="form-control @error('email') is-invalid @enderror" type="email" name="email"
+            <input class="form-control @error('email') is-invalid @enderror" type="email"
+                id="email" name="email"
                 value="{{ old('email') }}" placeholder="Email" required autofocus autocomplete="username">
         </div>
 
         {{-- Password (input-group dengan SVG icon seperti template) --}}
         <div class="input-group mb-4">
-            <span class="input-group-text">
+            <label for="password" class="visually-hidden">Password</label>
+            <span class="input-group-text" aria-hidden="true">
                 <svg class="icon">
                     <use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-lock-locked') }}"></use>
                 </svg>
             </span>
-            <input class="form-control @error('password') is-invalid @enderror" type="password" name="password"
+            <input class="form-control @error('password') is-invalid @enderror" type="password"
+                id="password" name="password"
                 placeholder="Password" required autocomplete="current-password">
         </div>
 

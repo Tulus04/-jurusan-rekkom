@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Schema;
  *
  * Menyimpan pesan masuk dari pengunjung via form kontak.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Buat tabel kontak_pesans.
      */

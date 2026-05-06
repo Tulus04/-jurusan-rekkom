@@ -13,15 +13,22 @@ class SliderRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_active' => $this->has('is_active'),
+        ]);
+    }
+
     public function rules(): array
     {
         $rules = [
-            'judul'       => 'required|string|max:255',
-            'deskripsi'   => 'nullable|string|max:500',
+            'judul' => 'required|string|max:255',
+            'deskripsi' => 'nullable|string|max:500',
             'tombol_teks' => 'nullable|string|max:100',
-            'tombol_url'  => 'nullable|string|max:255',
-            'urutan'      => 'required|integer|min:0',
-            'is_active'   => 'boolean',
+            'tombol_url' => 'nullable|string|max:255',
+            'urutan' => 'required|integer|min:0',
+            'is_active' => 'boolean',
         ];
 
         // Gambar wajib saat create, opsional saat update
@@ -37,10 +44,10 @@ class SliderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'judul.required'  => 'Judul slider wajib diisi.',
+            'judul.required' => 'Judul slider wajib diisi.',
             'gambar.required' => 'Gambar slider wajib diupload.',
-            'gambar.image'    => 'File harus berupa gambar.',
-            'gambar.max'      => 'Ukuran gambar maksimal 2MB.',
+            'gambar.image' => 'File harus berupa gambar.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
             'urutan.required' => 'Urutan wajib diisi.',
         ];
     }

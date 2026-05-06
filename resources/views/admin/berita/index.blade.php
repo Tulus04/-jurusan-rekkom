@@ -56,7 +56,17 @@
             var table = $('#berita-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: '{{ route('admin.berita.datatable') }}',
+                ajax: {
+                    url: '{{ route('admin.berita.datatable') }}',
+                    // Pass query param ?kategori= dari URL ke server (untuk shortcut Tridharma)
+                    data: function(d) {
+                        var urlParams = new URLSearchParams(window.location.search);
+                        var kategori = urlParams.get('kategori');
+                        if (kategori) {
+                            d.kategori = kategori;
+                        }
+                    }
+                },
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'gambar_preview', name: 'gambar_preview', orderable: false, searchable: false },
@@ -67,7 +77,12 @@
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
                 ],
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/id.json'
+                    url: '{{ asset("admin/vendor/datatables/id.json") }}',
+                    emptyTable: '<div class="py-4 text-center text-body-secondary">' +
+                        '<svg class="icon icon-3xl mb-2"><use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-newspaper') }}"></use></svg>' +
+                        '<div class="fw-semibold mb-1">Belum ada berita</div>' +
+                        '<a href="{{ route('admin.berita.create') }}" class="btn btn-sm btn-primary mt-2">Tulis Berita Pertama</a>' +
+                        '</div>'
                 }
             });
 

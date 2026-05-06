@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Model;
  *
  * Merepresentasikan pesan masuk dari pengunjung via form kontak.
  *
- * @property int    $id
- * @property string $nama    Nama pengirim
- * @property string $email   Email pengirim
- * @property string $subjek  Subjek pesan
- * @property string $pesan   Isi pesan
- * @property bool   $is_read Status sudah dibaca
+ * @property int $id
+ * @property string $nama Nama pengirim
+ * @property string $email Email pengirim
+ * @property string $subjek Subjek pesan
+ * @property string $pesan Isi pesan
+ * @property bool $is_read Status sudah dibaca
  */
 class KontakPesan extends Model
 {

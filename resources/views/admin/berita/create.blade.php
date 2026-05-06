@@ -4,6 +4,7 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('admin/vendor/tom-select/tom-select.bootstrap5.min.css') }}">
+    @include('components.admin.tom-select-darkmode')
 @endpush
 
 @section('content')

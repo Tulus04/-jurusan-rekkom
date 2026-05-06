@@ -53,26 +53,41 @@
             <div class="card-body">
                 <input type="file" class="form-control @error('gambar') is-invalid @enderror"
                     id="gambar" name="gambar" accept="image/*"
-                    onchange="previewImage(event)">
+                    data-preview-target="#gambar-preview">
                 @error('gambar')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <div class="form-text">Format: JPG, PNG, WebP. Maks: 2MB</div>
-                <div class="mt-2">
+                <input type="hidden" name="hapus_gambar" id="hapus_gambar" value="0">
+                <div class="mt-2 position-relative d-inline-block" id="gambar-preview-wrapper">
                     <img id="gambar-preview"
                         src="{{ isset($berita) && $berita->gambar ? asset('storage/' . $berita->gambar) : '' }}"
-                        alt="Preview"
+                        alt="{{ isset($berita) && $berita->gambar ? 'Pratinjau gambar utama: ' . $berita->judul : 'Pratinjau gambar utama berita' }}"
+                        loading="lazy"
+                        decoding="async"
                         class="img-fluid rounded {{ isset($berita) && $berita->gambar ? '' : 'd-none' }}"
                         style="max-height: 200px;">
+                    @if(isset($berita) && $berita->gambar)
+                        <button type="button" class="btn-hapus-gambar-x" id="btn-hapus-gambar"
+                            aria-label="Hapus gambar" title="Hapus gambar">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
 
         {{-- Kategori (Tom Select) --}}
         <div class="card mb-3">
-            <div class="card-header"><strong>Kategori</strong></div>
+            <div class="card-header">
+                <label for="kategori_ids" class="mb-0"><strong>Kategori</strong></label>
+            </div>
             <div class="card-body">
-                <select id="kategori_ids" name="kategori_ids[]" multiple placeholder="Pilih kategori...">
+                <select id="kategori_ids"
+                        name="kategori_ids[]"
+                        multiple
+                        placeholder="Pilih kategori..."
+                        aria-label="Pilih satu atau lebih kategori berita">
                     @foreach($kategoris as $kategori)
                         <option value="{{ $kategori->id }}"
                             {{ in_array($kategori->id, old('kategori_ids', $selectedKategoris ?? [])) ? 'selected' : '' }}>
@@ -80,6 +95,7 @@
                         </option>
                     @endforeach
                 </select>
+                <div class="form-text">Pilih lebih dari satu kategori dengan klik tag.</div>
             </div>
         </div>
 
@@ -107,50 +123,48 @@
     </div>
 </div>
 
-@push('scripts')
-    {{-- TinyMCE 7 via CDN (jQuery-free!) --}}
-    <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
+{{-- TinyMCE 7 (shared component, dengan upload gambar inline aktif) --}}
+@include('components.admin.tinymce-init', [
+    'selector'  => '#konten',
+    'height'    => 500,
+    'menubar'   => true,
+    'uploadUrl' => route('admin.berita.upload-image'),
+])
 
+@include('admin.partials._hapus-gambar-assets')
+
+@push('scripts')
     {{-- Tom Select (jQuery-free!) --}}
     <script src="{{ asset('admin/vendor/tom-select/tom-select.complete.min.js') }}"></script>
 
     <script>
-        // Inisialisasi TinyMCE 7
-        tinymce.init({
-            selector: '#konten',
-            height: 400,
-            menubar: true,
-            plugins: [
-                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-                'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount'
-            ],
-            toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
-                'alignleft aligncenter alignright alignjustify | ' +
-                'bullist numlist outdent indent | link image media table | ' +
-                'removeformat | code fullscreen',
-            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }',
-            branding: false,
-            promotion: false,
-            license_key: 'gpl',
-        });
-
-        // Inisialisasi Tom Select (multi-select kategori)
-        new TomSelect('#kategori_ids', {
-            plugins: ['remove_button'],
-            create: false,
-            maxItems: null,
-        });
-
-        // Image preview
-        function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function() {
-                var preview = document.getElementById('gambar-preview');
-                preview.src = reader.result;
-                preview.classList.remove('d-none');
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inisialisasi Tom Select (multi-select kategori)
+            if (document.getElementById('kategori_ids')) {
+                new TomSelect('#kategori_ids', {
+                    plugins: ['remove_button'],
+                    create: false,
+                    maxItems: null,
+                });
             }
-            reader.readAsDataURL(event.target.files[0]);
-        }
+
+            // Image preview untuk field gambar utama (via event listener, tanpa inline onchange)
+            const fileInput = document.getElementById('gambar');
+            if (fileInput) {
+                fileInput.addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const targetSelector = event.target.getAttribute('data-preview-target') || '#gambar-preview';
+                    const preview = document.querySelector(targetSelector);
+                    if (!preview) return;
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        preview.src = reader.result;
+                        preview.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
     </script>
 @endpush

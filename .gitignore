@@ -15,10 +15,21 @@
 /node_modules
 /public/build
 /public/hot
+/public/mockup-*.html
+/public/mockups/
 /public/storage
+/public/uploads/
+/scratch/
 /storage/*.key
 /storage/pail
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Docs mockups (design-time HTML, not part of the app)
+/docs/mockups/
+
+# OS generated
+Desktop.ini
+ehthumbs.db

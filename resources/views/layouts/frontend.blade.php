@@ -29,12 +29,22 @@
         content="@yield('meta_description', 'Website resmi Jurusan Rekayasa Komputer - Politeknik Pertanian Negeri Samarinda')">
     <meta name="keywords"
         content="@yield('meta_keywords', 'Rekayasa Komputer, Politani Samarinda, Politeknik Pertanian')">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    {{-- Open Graph / Social Media --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', 'Jurusan Rekayasa Komputer') - Politani Samarinda">
+    <meta property="og:description" content="@yield('meta_description', 'Website resmi Jurusan Rekayasa Komputer - Politeknik Pertanian Negeri Samarinda')">
+    <meta property="og:image" content="@yield('og_image', asset('frontend/img/logo-politani.png'))">
 
     @yield('meta')
 
-    {{-- Favicons --}}
-    <link href="{{ asset('frontend/img/favicon.png') }}" rel="icon">
-    <link href="{{ asset('frontend/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+    {{-- Favicons (logo Politani) --}}
+    <link rel="icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('frontend/img/logo-politani.png') }}">
 
     {{-- Google Fonts --}}
     <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -56,7 +66,10 @@
     {{-- Custom CSS Jurusan RK --}}
     <link href="{{ asset('frontend/css/custom.css') }}" rel="stylesheet">
 
-    {{-- CSS tambahan per halaman --}}
+    {{-- CSS tambahan per halaman.
+         Dual support: pakai @section('styles')...@endsection ATAU @push('styles')...@endpush
+         (ikuti rules .agents/rules/blade-components.md — preferensi @push untuk multi-source). --}}
+    @stack('styles')
     @yield('styles')
 </head>
 
@@ -74,29 +87,124 @@
     {{-- ==================== FOOTER ==================== --}}
     @include('components.frontend.footer')
 
+    {{-- Toast Flash Message (success/error) — render kalau ada session flash --}}
+    @include('partials._toast-flash')
+
     {{-- Scroll Top Button --}}
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
-        <i class="bi bi-arrow-up-short"></i>
+    <a href="#" id="scroll-top"
+       class="scroll-top d-flex align-items-center justify-content-center"
+       role="button"
+       aria-label="Kembali ke atas halaman"
+       title="Kembali ke atas">
+        <i class="bi bi-arrow-up-short" aria-hidden="true"></i>
     </a>
+
+    {{-- Custom smooth scroll + drawer body class hook --}}
+    <script>
+        (function() {
+            // === Smooth scroll-to-top (custom requestAnimationFrame) ===
+            function easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            }
+
+            function smoothScrollToTop(duration) {
+                const startY = window.scrollY || window.pageYOffset;
+                if (startY === 0) return;
+                const startTime = performance.now();
+                duration = duration || 600;
+
+                function animate(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = easeInOutCubic(progress);
+                    window.scrollTo(0, Math.round(startY * (1 - eased)));
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('#scroll-top');
+                if (!btn) return;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                smoothScrollToTop(600);
+            }, true);
+
+            // === Drawer body class hook (Bootstrap offcanvas events) ===
+            // Toggle body.drawer-open saat drawer open/close
+            // Lebih cepat dari CSS :has() selector
+            document.addEventListener('show.bs.offcanvas', function(e) {
+                if (e.target.id === 'mobileMenuDrawer') {
+                    document.body.classList.add('drawer-open');
+                }
+            });
+
+            document.addEventListener('hidden.bs.offcanvas', function(e) {
+                if (e.target.id === 'mobileMenuDrawer') {
+                    document.body.classList.remove('drawer-open');
+                }
+            });
+
+            // === Drawer submenu accordion (CSS Grid grid-template-rows) ===
+            // Pengganti Bootstrap collapse — animasi grid-template-rows jauh lebih
+            // ringan vs height transition (lihat .agents/rules/performance-css.md).
+            // Single-open behavior: membuka satu submenu menutup yang lain.
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('[data-drawer-toggle]');
+                if (!btn) return;
+                e.preventDefault();
+                const targetSel = btn.getAttribute('data-drawer-target');
+                const target = targetSel ? document.querySelector(targetSel) : null;
+                if (!target) return;
+
+                const willOpen = !target.classList.contains('is-open');
+
+                // Tutup submenu lain dalam drawer yang sama (single-open accordion)
+                const drawer = btn.closest('.mobile-drawer') || document;
+                drawer.querySelectorAll('.drawer-submenu-wrap.is-open').forEach(function(el) {
+                    if (el !== target) {
+                        el.classList.remove('is-open');
+                        const otherBtn = drawer.querySelector('[data-drawer-target="#' + el.id + '"]');
+                        if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                target.classList.toggle('is-open', willOpen);
+                btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            });
+        })();
+    </script>
 
     {{-- Preloader --}}
     <div id="preloader"></div>
 
-    {{-- Vendor JS --}}
-    <script src="{{ asset('frontend/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/php-email-form/validate.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/aos/aos.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/swiper/swiper-bundle.min.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/purecounter/purecounter_vanilla.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/waypoints/noframework.waypoints.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/glightbox/js/glightbox.min.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
-    <script src="{{ asset('frontend/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+    {{-- Vendor JS (defer = download paralel tanpa block render, execute in order) --}}
+    {{-- NOTE: validate.js BootstrapMade SENGAJA TIDAK di-load. Script tersebut --}}
+    {{-- intercept submit class .php-email-form via AJAX dan expect response "OK" --}}
+    {{-- string ala PHPMailer legacy. Laravel handle submit native (redirect + flash --}}
+    {{-- session) yang lebih reliable. Class CSS .php-email-form tetap dipakai --}}
+    {{-- HANYA untuk styling (bg + shadow) di /kontak. --}}
+    <script src="{{ asset('frontend/vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/aos/aos.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/swiper/swiper-bundle.min.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/purecounter/purecounter_vanilla.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/waypoints/noframework.waypoints.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/glightbox/js/glightbox.min.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}" defer></script>
+    <script src="{{ asset('frontend/vendor/isotope-layout/isotope.pkgd.min.js') }}" defer></script>
 
-    {{-- Main JS Eterna --}}
-    <script src="{{ asset('frontend/js/main.js') }}"></script>
+    {{-- Main JS Eterna (defer agar tidak block render) --}}
+    <script src="{{ asset('frontend/js/main.js') }}" defer></script>
 
-    {{-- JavaScript tambahan per halaman --}}
+    {{-- Custom frontend interactions --}}
+    <script src="{{ asset('frontend/js/visited-articles.js') }}" defer></script>
+
+    {{-- JavaScript tambahan per halaman.
+         Dual support: @section('scripts')...@endsection ATAU @push('scripts')...@endpush --}}
+    @stack('scripts')
     @yield('scripts')
 
 </body>

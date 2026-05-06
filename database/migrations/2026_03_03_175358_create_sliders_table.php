@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Schema;
  *
  * Menyimpan data slider hero carousel di halaman beranda.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Buat tabel sliders.
      */

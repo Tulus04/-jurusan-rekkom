@@ -59,19 +59,28 @@
             </label>
             <input type="file" class="form-control @error('gambar') is-invalid @enderror"
                 id="gambar" name="gambar" accept="image/*"
-                onchange="previewImage(event)">
+                data-preview-target="#gambar-preview">
             @error('gambar')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
             <div class="form-text">Format: JPG, PNG, WebP. Maks: 2MB. Rasio: 16:9</div>
 
             {{-- Preview --}}
-            <div class="mt-2">
+            <input type="hidden" name="hapus_gambar" id="hapus_gambar" value="0">
+            <div class="mt-2 position-relative d-inline-block" id="gambar-preview-wrapper">
                 <img id="gambar-preview"
                     src="{{ isset($slider) && $slider->gambar ? asset('storage/' . $slider->gambar) : '' }}"
-                    alt="Preview"
+                    alt="{{ isset($slider) && $slider->gambar ? 'Pratinjau gambar slider: ' . $slider->judul : 'Pratinjau gambar slider' }}"
+                    loading="lazy"
+                    decoding="async"
                     class="img-fluid rounded {{ isset($slider) && $slider->gambar ? '' : 'd-none' }}"
                     style="max-height: 200px;">
+                @if(isset($slider) && $slider->gambar)
+                    <button type="button" class="btn-hapus-gambar-x" id="btn-hapus-gambar"
+                        aria-label="Hapus gambar" title="Hapus gambar">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -99,16 +108,27 @@
     </div>
 </div>
 
+@include('admin.partials._hapus-gambar-assets')
+
 @push('scripts')
 <script>
-    function previewImage(event) {
-        var reader = new FileReader();
-        reader.onload = function() {
-            var preview = document.getElementById('gambar-preview');
-            preview.src = reader.result;
-            preview.classList.remove('d-none');
-        }
-        reader.readAsDataURL(event.target.files[0]);
-    }
+    // Image preview via event listener (tanpa inline onchange handler)
+    document.addEventListener('DOMContentLoaded', function () {
+        const fileInput = document.getElementById('gambar');
+        if (!fileInput) return;
+        fileInput.addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const targetSelector = event.target.getAttribute('data-preview-target') || '#gambar-preview';
+            const preview = document.querySelector(targetSelector);
+            if (!preview) return;
+            const reader = new FileReader();
+            reader.onload = function () {
+                preview.src = reader.result;
+                preview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        });
+    });
 </script>
 @endpush

@@ -63,7 +63,12 @@
                     { data: 'aksi', name: 'aksi', orderable: false, searchable: false },
                 ],
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/2.1.8/i18n/id.json'
+                    url: '{{ asset("admin/vendor/datatables/id.json") }}',
+                    emptyTable: '<div class="py-4 text-center text-body-secondary">' +
+                        '<svg class="icon icon-3xl mb-2"><use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-image-plus') }}"></use></svg>' +
+                        '<div class="fw-semibold mb-1">Belum ada slider</div>' +
+                        '<a href="{{ route('admin.slider.create') }}" class="btn btn-sm btn-primary mt-2">Tambah Slider Pertama</a>' +
+                        '</div>'
                 }
             });
 

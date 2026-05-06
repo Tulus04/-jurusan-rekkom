@@ -1,15 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\KontakRequest;
 use App\Models\Kontak;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 /**
  * Controller Kontak Jurusan.
  *
- * Mengelola informasi kontak jurusan (alamat, email, telepon, sosial media).
+ * Mengelola informasi kontak jurusan (alamat, email, telepon, sosmed).
  * Single record — hanya ada 1 baris di tabel kontaks.
  */
 class KontakController extends Controller
@@ -17,40 +21,31 @@ class KontakController extends Controller
     /**
      * Tampilkan form edit kontak.
      */
-    public function edit()
+    public function edit(): View
     {
-        $kontak = Kontak::first() ?? new Kontak();
+        $kontak = Kontak::first() ?? new Kontak;
 
         return view('admin.kontak.edit', compact('kontak'));
     }
 
     /**
      * Simpan/update kontak jurusan.
+     * Validasi via {@see KontakRequest} (sesuai .agents/rules/keamanan.md).
      */
-    public function update(Request $request)
+    public function update(KontakRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'alamat'    => 'nullable|string|max:500',
-            'email'     => 'nullable|email|max:255',
-            'telepon'   => 'nullable|string|max:20',
-            'koordinat' => 'nullable|string|max:100',
-            'tiktok'    => 'nullable|url|max:255',
-            'facebook'  => 'nullable|url|max:255',
-            'instagram' => 'nullable|url|max:255',
-            'youtube'   => 'nullable|url|max:255',
-            'linkedin'  => 'nullable|url|max:255',
-        ]);
-
+        $validated = $request->validated();
         $kontak = Kontak::first();
 
         if ($kontak) {
             $kontak->update($validated);
         } else {
-            Kontak::create($validated);
+            $kontak = Kontak::create($validated);
         }
 
         activity()
             ->causedBy(auth()->user())
+            ->performedOn($kontak)
             ->log('Memperbarui informasi kontak jurusan');
 
         return redirect()

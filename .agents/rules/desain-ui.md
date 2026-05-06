@@ -5,8 +5,24 @@ Website ini adalah **website resmi jurusan perguruan tinggi**. Desain HARUS:
 1. **Formal & Profesional** — bukan website personal/startup
 2. **Informatif** — konten mudah ditemukan
 3. **Navigasi Jelas** — breadcrumb di setiap halaman
-4. **Responsif** — mobile-friendly
+4. **Mobile-First & Responsif** — mayoritas user dari HP. Lihat detail di `responsive-mobile.md`
 5. **Konsisten** — warna, font, spacing seragam
+6. **Aksesibel** — WCAG 2.1 AA. Lihat `a11y.md`
+7. **TIDAK Terlihat AI-Generated** — desain harus terkesan dibuat oleh tim profesional, bukan keluaran cepat dari prompt AI. **WAJIB BACA**: `.windsurf/rules/anti-ai-generated.md` (no random emoji, no rainbow gradient, no klise marketing-speak, hierarki visual jelas).
+8. **Konten Faktual** — nama institusi/jurusan/prodi/pejabat/lokasi harus sesuai data real. **WAJIB BACA**: `.windsurf/rules/identitas-website.md` untuk data resmi (4 prodi, akreditasi, alamat, email, dll).
+
+## Bootstrap 5 Breakpoints (Quick Reference)
+
+| Prefix | Min Width | Device | Pattern Umum |
+|--------|-----------|--------|--------------|
+| `(none)` | 0 | Mobile portrait | `col-12` (full-width) |
+| `sm-` | ≥576 | Mobile landscape | (jarang dipakai) |
+| `md-` | ≥768 | Tablet portrait | `col-md-6` (2-kolom) |
+| `lg-` | ≥992 | Tablet landscape / laptop | `col-lg-4` (3-kolom) |
+| `xl-` | ≥1200 | Desktop | `col-xl-3` (4-kolom) |
+| `xxl-` | ≥1400 | Large desktop | (jarang dipakai) |
+
+**Pendekatan**: mobile-first — start `col-12`, escalate ke `col-md-X` / `col-lg-X` untuk layar lebih besar.
 
 ## Color Palette
 

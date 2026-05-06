@@ -17,9 +17,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Admin Jurusan RK</title>
 
-    {{-- Favicon --}}
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('admin/favicon/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('admin/favicon/favicon-16x16.png') }}">
+    {{-- Favicon (logo Politani) --}}
+    <link rel="icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('frontend/img/logo-politani.png') }}">
 
     {{-- Vendors styles --}}
     <link rel="stylesheet" href="{{ asset('admin/css/vendors/simplebar.min.css') }}">
@@ -29,6 +30,12 @@
 
     {{-- Custom styles (dari style.scss template) --}}
     <link href="{{ asset('admin/css/style.css') }}" rel="stylesheet">
+
+    {{-- Mobile responsive & a11y enhancement --}}
+    <link href="{{ asset('admin/css/admin-mobile.css') }}" rel="stylesheet">
+
+    {{-- Bootstrap Icons (dipakai oleh form admin untuk ikon kontekstual) --}}
+    <link href="{{ asset('frontend/vendor/bootstrap-icons/bootstrap-icons.min.css') }}" rel="stylesheet">
 
     {{-- Config & Color Modes JS (harus di head seperti template asli) --}}
     <script src="{{ asset('admin/js/config.js') }}"></script>
@@ -40,6 +47,9 @@
 
 <body>
 
+    {{-- Skip-to-content (a11y: keyboard user bisa lompat ke konten utama) --}}
+    <a href="#main-content" class="skip-to-content">Lewati ke konten utama</a>
+
     {{-- ==================== SIDEBAR ==================== --}}
     @include('components.admin.sidebar')
 
@@ -50,35 +60,28 @@
         @include('components.admin.header')
 
         {{-- Konten Utama --}}
-        <div class="body flex-grow-1">
+        <main class="body flex-grow-1" id="main-content" role="main">
             <div class="container-lg px-4">
 
-                {{-- Flash Messages --}}
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-coreui-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-coreui-dismiss="alert"></button>
-                    </div>
-                @endif
+                {{-- Flash Messages: ditampilkan via SweetAlert2 toast di akhir body --}}
 
                 @yield('content')
 
             </div>
-        </div>
+        </main>
 
-        {{-- Footer (persis dari template) --}}
+        {{-- Footer Admin Jurusan R&K --}}
         <footer class="footer px-4">
-            <div><a href="https://coreui.io">CoreUI </a><a
-                    href="https://coreui.io/product/free-bootstrap-admin-template/">Bootstrap Admin Template</a> &copy;
-                {{ date('Y') }} creativeLabs.</div>
-            <div class="ms-auto">Powered by&nbsp;<a href="https://coreui.io/bootstrap/docs/">CoreUI UI Components</a>
+            <div>
+                &copy; {{ date('Y') }} <strong>Jurusan Rekayasa Komputer</strong> &mdash;
+                Politeknik Pertanian Negeri Samarinda.
+            </div>
+            <div class="ms-auto">
+                <small class="text-body-secondary">Powered by
+                    <a href="https://coreui.io" target="_blank" rel="noopener">CoreUI</a>
+                    &amp;
+                    <a href="https://laravel.com" target="_blank" rel="noopener">Laravel</a>
+                </small>
             </div>
         </footer>
 
@@ -95,6 +98,24 @@
                 header.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0);
             }
         });
+
+        // Inisialisasi semua tooltips (CoreUI/Bootstrap)
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-coreui-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(el) {
+                return new coreui.Tooltip(el);
+            });
+
+            // Sidebar toggle (event delegation, ganti inline onclick)
+            document.addEventListener('click', function (e) {
+                const trigger = e.target.closest('[data-sidebar-toggle]');
+                if (!trigger) return;
+                const target = document.querySelector(trigger.getAttribute('data-sidebar-toggle'));
+                if (!target) return;
+                const instance = coreui.Sidebar.getInstance(target) || new coreui.Sidebar(target);
+                instance.toggle();
+            });
+        });
     </script>
 
     {{-- jQuery (dependency DataTables.js) --}}
@@ -108,6 +129,62 @@
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
         });
+    </script>
+
+    {{-- ==================== SWEETALERT2 TOAST FLASH ==================== --}}
+    {{-- Menampilkan session flash (success/error/warning/info) sebagai
+         toast non-intrusive di pojok kanan atas. --}}
+    <script>
+        (function () {
+            if (typeof Swal === 'undefined') return;
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: function (toast) {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+
+            // Expose ke window agar bisa dipakai modul lain (misal AJAX success).
+            window.AdminToast = Toast;
+
+            @if(session('success'))
+                Toast.fire({ icon: 'success', title: @json(session('success')) });
+            @endif
+
+            @if(session('error'))
+                Toast.fire({ icon: 'error', title: @json(session('error')) });
+            @endif
+
+            @if(session('warning'))
+                Toast.fire({ icon: 'warning', title: @json(session('warning')) });
+            @endif
+
+            @if(session('info'))
+                Toast.fire({ icon: 'info', title: @json(session('info')) });
+            @endif
+
+            @if($errors->any())
+                {{-- Tampilkan pesan error spesifik dalam modal (lebih jelas dari toast generik).
+                     Berguna terutama untuk error upload (mis. "Ukuran gambar maksimal 5MB"). --}}
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Form belum bisa disimpan',
+                    html: '<div class="text-start"><p class="mb-2">Ada {{ $errors->count() }} kesalahan input yang perlu diperbaiki:</p>' +
+                          '<ul class="text-start mb-0" style="padding-left: 1.25rem;">' +
+                          @json(collect($errors->all())->map(fn($m) => '<li class="mb-1">' . e($m) . '</li>')->implode('')) +
+                          '</ul></div>',
+                    confirmButtonColor: '#321fdb',
+                    confirmButtonText: 'Mengerti',
+                    width: '32rem',
+                });
+            @endif
+        })();
     </script>
 
     @stack('scripts')

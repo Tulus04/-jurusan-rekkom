@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Schema;
  * Menyimpan informasi profil jurusan secara key-value:
  * visi, misi, sejarah, sambutan ketua, dll.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Buat tabel profil_jurusans.
      */

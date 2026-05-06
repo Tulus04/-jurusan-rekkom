@@ -23,8 +23,6 @@ class RegisteredUserController extends Controller
 {
     /**
      * Tampilkan halaman registrasi.
-     *
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -37,8 +35,6 @@ class RegisteredUserController extends Controller
      * Validasi input, buat user, fire event Registered,
      * login otomatis, lalu redirect ke admin dashboard.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -46,7 +42,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 

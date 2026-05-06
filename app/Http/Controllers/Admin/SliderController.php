@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SliderRequest;
 use App\Models\Slider;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -26,16 +25,16 @@ class SliderController extends Controller
      */
     public function datatable()
     {
-        $sliders = Slider::orderBy('urutan')->get();
+        $query = Slider::query()->select('sliders.*');
 
-        return DataTables::of($sliders)
+        return DataTables::eloquent($query)
             ->addIndexColumn()
             ->addColumn('gambar_preview', function ($slider) {
                 $url = $slider->gambar
-                    ? asset('storage/' . $slider->gambar)
+                    ? asset('storage/'.$slider->gambar)
                     : asset('admin/img/avatars/placeholder.jpg');
 
-                return '<img src="' . $url . '" alt="' . $slider->judul . '" height="60" class="rounded"/>';
+                return '<img src="'.$url.'" alt="'.$slider->judul.'" height="60" class="rounded"/>';
             })
             ->addColumn('status', function ($slider) {
                 return $slider->is_active
@@ -72,7 +71,7 @@ class SliderController extends Controller
 
         activity()
             ->causedBy(auth()->user())
-            ->log('Menambahkan slider: ' . $data['judul']);
+            ->log('Menambahkan slider: '.$data['judul']);
 
         return redirect()
             ->route('admin.slider.index')
@@ -100,6 +99,11 @@ class SliderController extends Controller
                 Storage::disk('public')->delete($slider->gambar);
             }
             $data['gambar'] = $request->file('gambar')->store('sliders', 'public');
+        } elseif ($request->boolean('hapus_gambar')) {
+            if ($slider->gambar && Storage::disk('public')->exists($slider->gambar)) {
+                Storage::disk('public')->delete($slider->gambar);
+            }
+            $data['gambar'] = null;
         }
 
         $slider->update($data);
@@ -107,7 +111,7 @@ class SliderController extends Controller
         activity()
             ->causedBy(auth()->user())
             ->performedOn($slider)
-            ->log('Mengubah slider: ' . $slider->judul);
+            ->log('Mengubah slider: '.$slider->judul);
 
         return redirect()
             ->route('admin.slider.index')
@@ -129,7 +133,7 @@ class SliderController extends Controller
 
         activity()
             ->causedBy(auth()->user())
-            ->log('Menghapus slider: ' . $judul);
+            ->log('Menghapus slider: '.$judul);
 
         return response()->json(['success' => true, 'message' => 'Slider berhasil dihapus!']);
     }

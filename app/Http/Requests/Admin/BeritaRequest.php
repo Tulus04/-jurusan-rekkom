@@ -13,15 +13,25 @@ class BeritaRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_published' => $this->has('is_published'),
+        ]);
+    }
+
     public function rules(): array
     {
         $rules = [
-            'judul'             => 'required|string|max:255',
-            'konten'            => 'required|string',
-            'ringkasan'         => 'nullable|string|max:500',
-            'kategori_ids'      => 'nullable|array',
-            'kategori_ids.*'    => 'exists:kategoris,id',
-            'is_published'      => 'boolean',
+            'judul' => 'required|string|max:255',
+            'konten' => 'required|string',
+            'ringkasan' => 'nullable|string|max:500',
+            'kategori_ids' => 'nullable|array',
+            'kategori_ids.*' => 'exists:kategoris,id',
+            'program_studi_id' => 'nullable|exists:program_studis,id',
+            'lokasi' => 'nullable|string|max:150',
+            'dampak_singkat' => 'nullable|string|max:100',
+            'is_published' => 'boolean',
             'tanggal_publikasi' => 'nullable|date',
         ];
 
@@ -37,11 +47,12 @@ class BeritaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'judul.required'  => 'Judul berita wajib diisi.',
+            'judul.required' => 'Judul berita wajib diisi.',
             'konten.required' => 'Konten berita wajib diisi.',
             'gambar.required' => 'Gambar utama wajib diupload.',
-            'gambar.image'    => 'File harus berupa gambar.',
-            'gambar.max'      => 'Ukuran gambar maksimal 2MB.',
+            'gambar.image' => 'File harus berupa gambar.',
+            'gambar.max' => 'Ukuran gambar maksimal 2MB.',
+            'program_studi_id.exists' => 'Program studi yang dipilih tidak valid.',
         ];
     }
 }

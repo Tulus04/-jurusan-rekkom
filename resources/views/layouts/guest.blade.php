@@ -16,8 +16,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - Admin Jurusan RK</title>
 
-    {{-- Favicon --}}
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('admin/favicon/favicon-32x32.png') }}">
+    {{-- Favicon (logo Politani) --}}
+    <link rel="icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('frontend/img/logo-politani.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('frontend/img/logo-politani.png') }}">
 
     {{-- Vendors styles --}}
     <link rel="stylesheet" href="{{ asset('admin/css/vendors/simplebar.min.css') }}">

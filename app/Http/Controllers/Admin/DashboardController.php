@@ -1,39 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Berita;
-use App\Models\Dosen;
-use App\Models\Galeri;
-use App\Models\KontakPesan;
-use App\Models\Slider;
-use App\Models\ProgramStudi;
+use App\Repositories\DashboardRepository;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Controller untuk halaman dashboard admin.
  *
- * Menampilkan ringkasan statistik dan informasi penting
- * untuk pengelola website jurusan.
+ * Tetap ringan sesuai .agents/rules/kualitas-kode.md.
+ * Semua agregasi data didelegasikan ke {@see DashboardRepository}.
  */
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly DashboardRepository $dashboard,
+    ) {}
+
     /**
      * Tampilkan halaman dashboard admin.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request): View
     {
-        $stats = [
-            'berita'  => Berita::count(),
-            'dosen'   => Dosen::count(),
-            'galeri'  => Galeri::count(),
-            'pesan'   => KontakPesan::count(),
-            'slider'  => Slider::count(),
-            'prodi'   => ProgramStudi::count(),
-        ];
+        $months = (int) $request->integer('months', 6);
+        $months = in_array($months, [3, 6, 12], true) ? $months : 6;
 
-        return view('admin.dashboard', compact('stats'));
+        return view('admin.dashboard', [
+            'stats' => $this->dashboard->getStats(),
+            'beritaTerbaru' => $this->dashboard->getRecentBerita(5),
+            'kegiatanMendatang' => $this->dashboard->getUpcomingKegiatan(5),
+            'pesanBelumDibalas' => $this->dashboard->getUnreadMessages(5),
+            'recentActivities' => $this->dashboard->getRecentActivities(8),
+            'chart' => $this->dashboard->getMonthlyChart($months),
+            'chartMonths' => $months,
+        ]);
     }
 }

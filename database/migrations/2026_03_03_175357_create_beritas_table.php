@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Schema;
  *
  * Menyimpan berita/artikel jurusan dengan relasi ke user (penulis).
  */
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Buat tabel beritas.
      */

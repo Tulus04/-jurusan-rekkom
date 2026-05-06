@@ -25,8 +25,17 @@
 ### Setelah Membuat View
 - [ ] Buka di browser — tidak ada error Blade
 - [ ] Cek layout: extends master layout yang benar
-- [ ] Cek responsif: resize browser
 - [ ] Cek breadcrumb muncul
+- [ ] **Cek responsif di 4 breakpoint** (Chrome DevTools Ctrl+Shift+M):
+  - [ ] **375 px** (iPhone SE) — tidak ada horizontal scroll, text readable
+  - [ ] **768 px** (iPad) — layout transisi mulus, hamburger menu aktif
+  - [ ] **1024 px** (laptop) — sidebar/grid muncul, navbar full
+  - [ ] **1440 px** (desktop) — konten tidak terlalu lebar (max-width)
+- [ ] **Touch target check**: tombol & link minimal 44x44 px di mobile
+- [ ] **Form mobile UX**: input pakai `type` & `inputmode` yang sesuai (email/tel/numeric)
+- [ ] **Image responsive**: pakai `class="img-fluid"` + `loading="lazy"`
+- [ ] **Tabel responsive**: dibungkus `<div class="table-responsive">`
+- [ ] **Hover alternatif**: `:hover` punya pasangan `:focus-visible` (touch user)
 
 ### Setelah Selesai Fitur
 - [ ] Jalankan `php artisan test` — semua pass

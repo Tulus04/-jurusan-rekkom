@@ -1,91 +1,116 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ProfilJurusanRequest;
 use App\Models\ProfilJurusan;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 /**
  * Controller Profil Jurusan.
  *
- * Mengelola halaman profil jurusan secara single-page edit.
- * Data disimpan key-value: visi, misi, sejarah, sambutan_ketua.
+ * Mengelola 3 section profil (tentang, visi-misi, struktur-organisasi)
+ * via 2 method generic. Section dipass via route default parameter.
  */
 class ProfilJurusanController extends Controller
 {
     /**
-     * Daftar kunci profil yang tersedia.
+     * Mapping URL slug → kunci DB + label tampilan + view.
+     *
+     * @var array<string, array{key: string, label: string, view: string}>
      */
-    private array $kunciProfil = [
-        'visi'           => 'Visi',
-        'misi'           => 'Misi',
-        'sejarah'        => 'Sejarah',
-        'sambutan_ketua' => 'Sambutan Ketua Jurusan',
+    private const SECTION_MAP = [
+        'tentang-jurusan' => ['key' => 'tentang_jurusan', 'label' => 'Tentang Jurusan', 'view' => 'admin.profil.tentang'],
+        'visi-misi' => ['key' => 'visi_misi', 'label' => 'Visi & Misi', 'view' => 'admin.profil.visi-misi'],
+        'struktur-organisasi' => ['key' => 'struktur_organisasi', 'label' => 'Struktur Organisasi', 'view' => 'admin.profil.struktur'],
     ];
 
     /**
-     * Tampilkan form edit profil jurusan.
+     * Halaman edit untuk section tertentu.
      */
-    public function edit()
+    public function edit(string $section): View
     {
-        // Ambil semua profil, buat indexed by 'kunci'
-        $profilData = ProfilJurusan::all()->keyBy('kunci');
+        $config = $this->config($section);
+        $profil = ProfilJurusan::firstOrNew(
+            ['kunci' => $config['key']],
+            ['nilai' => '', 'gambar' => null],
+        );
 
-        // Pastikan semua kunci ada (walau belum ada di DB)
-        $profil = [];
-        foreach ($this->kunciProfil as $kunci => $label) {
-            $profil[$kunci] = $profilData->get($kunci, new ProfilJurusan([
-                'kunci' => $kunci,
-                'nilai' => '',
-                'gambar' => null,
-            ]));
-        }
-
-        return view('admin.profil.edit', [
-            'profil'      => $profil,
-            'kunciProfil' => $this->kunciProfil,
-        ]);
+        return view($config['view'], compact('profil'));
     }
 
     /**
-     * Simpan/update semua profil jurusan.
+     * Simpan perubahan untuk section tertentu.
      */
-    public function update(Request $request)
+    public function update(ProfilJurusanRequest $request, string $section): RedirectResponse
     {
-        $request->validate([
-            'profil'          => 'required|array',
-            'profil.*.nilai'  => 'nullable|string',
-            'profil.*.gambar' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+        $config = $this->config($section);
+        $kunci = $config['key'];
+        $label = $config['label'];
 
-        foreach ($this->kunciProfil as $kunci => $label) {
-            $data = $request->input("profil.{$kunci}", []);
+        $data = $request->input("profil.{$kunci}", []);
 
-            // updateOrCreate
-            $profil = ProfilJurusan::firstOrNew(['kunci' => $kunci]);
-            $profil->nilai = $data['nilai'] ?? '';
+        $profil = ProfilJurusan::firstOrNew(['kunci' => $kunci]);
+        $profil->nilai = $data['nilai'] ?? '';
 
-            // Handle gambar upload
-            if ($request->hasFile("profil.{$kunci}.gambar")) {
-                // Hapus gambar lama
-                if ($profil->gambar && Storage::disk('public')->exists($profil->gambar)) {
-                    Storage::disk('public')->delete($profil->gambar);
-                }
-                $profil->gambar = $request->file("profil.{$kunci}.gambar")
-                    ->store('profil-jurusan', 'public');
+        // Judul heading WAJIB (validasi sudah menolak empty). Trim whitespace untuk hygiene.
+        $profil->judul = trim((string) ($data['judul'] ?? ''));
+
+        // Penanganan gambar (urutan prioritas):
+        // 1. Upload file baru → replace gambar lama (upload menang kalau admin
+        //    juga centang hapus — lebih aman, admin jelas mau gambar baru).
+        // 2. Flag hapus_gambar=true → hapus file lama, set kolom jadi null.
+        // 3. Tidak ada keduanya → gambar lama dibiarkan.
+        if ($request->hasFile("profil.{$kunci}.gambar")) {
+            if ($profil->gambar && Storage::disk('public')->exists($profil->gambar)) {
+                Storage::disk('public')->delete($profil->gambar);
             }
-
-            $profil->save();
+            $profil->gambar = $request->file("profil.{$kunci}.gambar")
+                ->store('profil-jurusan', 'public');
+        } elseif ($request->boolean("profil.{$kunci}.hapus_gambar")) {
+            if ($profil->gambar && Storage::disk('public')->exists($profil->gambar)) {
+                Storage::disk('public')->delete($profil->gambar);
+            }
+            $profil->gambar = null;
         }
+
+        $profil->save();
 
         activity()
             ->causedBy(auth()->user())
-            ->log('Memperbarui profil jurusan');
+            ->performedOn($profil)
+            ->log("Memperbarui {$label}");
 
         return redirect()
-            ->route('admin.profil.edit')
-            ->with('success', 'Profil jurusan berhasil diperbarui.');
+            ->route("admin.profil.{$this->routeNameFor($section)}.edit")
+            ->with('success', "{$label} berhasil diperbarui.");
+    }
+
+    /**
+     * Resolusi config section atau abort 404.
+     *
+     * @return array{key: string, label: string, view: string}
+     */
+    private function config(string $section): array
+    {
+        return self::SECTION_MAP[$section] ?? abort(404, 'Section profil tidak dikenal');
+    }
+
+    /**
+     * URL slug → suffix nama route (tentang-jurusan → tentang).
+     */
+    private function routeNameFor(string $section): string
+    {
+        return match ($section) {
+            'tentang-jurusan' => 'tentang',
+            'visi-misi' => 'visi-misi',
+            'struktur-organisasi' => 'struktur',
+            default => abort(404),
+        };
     }
 }

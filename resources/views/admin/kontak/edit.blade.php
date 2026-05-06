@@ -47,14 +47,47 @@
                             @error('telepon')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="mb-3">
-                            <label for="koordinat" class="form-label">Koordinat (Google Maps)</label>
+                            <label for="google_maps_embed" class="form-label">
+                                <svg class="icon me-1"><use xlink:href="{{ asset('admin/icons/sprites/free.svg#cil-map') }}"></use></svg>
+                                Google Maps Embed URL
+                            </label>
+                            <input type="url" class="form-control @error('google_maps_embed') is-invalid @enderror"
+                                   id="google_maps_embed" name="google_maps_embed"
+                                   value="{{ old('google_maps_embed', $kontak->google_maps_embed ?? '') }}"
+                                   placeholder="https://www.google.com/maps/embed?pb=...">
+                            @error('google_maps_embed')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="form-text">
+                                <strong>Cara mendapatkan URL:</strong> Buka Google Maps → Cari lokasi → Klik <strong>Bagikan</strong> → Tab <strong>Sematkan peta</strong> → Copy <strong>URL src</strong> dari kode iframe (bukan seluruh kode HTML).
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="koordinat" class="form-label">Koordinat (Fallback)</label>
                             <input type="text" class="form-control @error('koordinat') is-invalid @enderror"
                                    id="koordinat" name="koordinat"
                                    value="{{ old('koordinat', $kontak->koordinat ?? '') }}"
-                                   placeholder="-0.4948,117.1436">
+                                   placeholder="-0.5360357,117.1235594">
                             @error('koordinat')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            <div class="form-text">Format: lat,lng (contoh: -0.4948,117.1436)</div>
+                            <div class="form-text">Format: lat,lng — Digunakan jika Google Maps Embed URL tidak diisi.</div>
                         </div>
+                        {{-- Preview Peta --}}
+                        @php
+                            $embedUrl = old('google_maps_embed', $kontak->google_maps_embed ?? '');
+                            if (!$embedUrl && ($kontak->koordinat ?? '')) {
+                                $coords = explode(',', $kontak->koordinat);
+                                $lat = trim($coords[0] ?? '');
+                                $lng = trim($coords[1] ?? '');
+                                if ($lat && $lng) {
+                                    $embedUrl = "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed";
+                                }
+                            }
+                        @endphp
+                        @if($embedUrl)
+                            <div class="mb-0">
+                                <label class="form-label text-body-secondary">Preview Peta</label>
+                                <iframe src="{{ $embedUrl }}" width="100%" height="250"
+                                        style="border:0; border-radius:6px;" allowfullscreen loading="lazy"></iframe>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

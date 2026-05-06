@@ -20,10 +20,17 @@ class KategoriController extends Controller
     {
         return DataTables::of(Kategori::withCount('beritas')->get())
             ->addIndexColumn()
+            ->addColumn('tipe_badge', function ($kategori) {
+                if ($kategori->isEditorial()) {
+                    return '<span class="badge bg-primary">Editorial</span>';
+                }
+
+                return '<span class="badge bg-secondary">Topik</span>';
+            })
             ->addColumn('aksi', function ($kategori) {
                 return view('admin.kategori._aksi', compact('kategori'))->render();
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['tipe_badge', 'aksi'])
             ->toJson();
     }
 
@@ -36,7 +43,7 @@ class KategoriController extends Controller
     {
         Kategori::create($request->validated());
 
-        activity()->causedBy(auth()->user())->log('Menambahkan kategori: ' . $request->nama);
+        activity()->causedBy(auth()->user())->log('Menambahkan kategori: '.$request->nama);
 
         return redirect()->route('admin.kategori.index')
             ->with('success', 'Kategori berhasil ditambahkan!');
@@ -52,7 +59,7 @@ class KategoriController extends Controller
         $kategori->update($request->validated());
 
         activity()->causedBy(auth()->user())->performedOn($kategori)
-            ->log('Mengubah kategori: ' . $kategori->nama);
+            ->log('Mengubah kategori: '.$kategori->nama);
 
         return redirect()->route('admin.kategori.index')
             ->with('success', 'Kategori berhasil diperbarui!');
@@ -63,7 +70,7 @@ class KategoriController extends Controller
         $nama = $kategori->nama;
         $kategori->delete();
 
-        activity()->causedBy(auth()->user())->log('Menghapus kategori: ' . $nama);
+        activity()->causedBy(auth()->user())->log('Menghapus kategori: '.$nama);
 
         return response()->json(['success' => true, 'message' => 'Kategori berhasil dihapus!']);
     }

@@ -25,6 +25,25 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="mb-3">
+                                <label for="tipe" class="form-label">Tipe Kategori <span class="text-danger">*</span></label>
+                                <select id="tipe" name="tipe"
+                                        class="form-select @error('tipe') is-invalid @enderror" required>
+                                    <option value="{{ \App\Models\Kategori::TIPE_EDITORIAL }}" @selected(old('tipe', $kategori->tipe) === \App\Models\Kategori::TIPE_EDITORIAL)>
+                                        Editorial — tampil di sidebar /berita
+                                    </option>
+                                    <option value="{{ \App\Models\Kategori::TIPE_TOPIK }}" @selected(old('tipe', $kategori->tipe) === \App\Models\Kategori::TIPE_TOPIK)>
+                                        Topik — disembunyikan di sidebar /berita (mis. Tridharma, Kegiatan)
+                                    </option>
+                                </select>
+                                @error('tipe')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">
+                                    <strong>Editorial</strong>: kategori berita umum yang akan tampil sebagai filter di halaman <code>/berita</code>.<br>
+                                    <strong>Topik</strong>: kategori yang sudah punya halaman sendiri (Pengajaran/Pengabdian/Kegiatan). Disembunyikan dari sidebar agar tidak duplikat dengan menu navigasi.
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary">Perbarui</button>
                             <a href="{{ route('admin.kategori.index') }}" class="btn btn-secondary ms-2">Batal</a>
                         </form>
