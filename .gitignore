@@ -30,6 +30,11 @@ Thumbs.db
 # Docs mockups (design-time HTML, not part of the app)
 /docs/mockups/
 
+# AI tools config (local development only)
+/.agents/
+/.windsurf/
+/.gemini/
+
 # OS generated
 Desktop.ini
 ehthumbs.db
